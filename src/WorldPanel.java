@@ -3,7 +3,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Random;
 
 import javax.swing.*;
 
@@ -11,6 +10,7 @@ public class WorldPanel extends JPanel {
 
     private Circle playerCircle;
     private ArrayList<Circle> enemyCircles = new ArrayList<Circle>();
+    private FoodSpawner foodSpawner;
     private Camera camera;
     private long lastUpdateTime;
     private ViewportHandler viewport;
@@ -26,9 +26,10 @@ public class WorldPanel extends JPanel {
         });
 
         playerCircle = new Circle(0, 0, Globals.START_WEIGHT_CIRCLE, Color.CYAN, false);
-        initEnemyCircles(10);
         camera = new Camera(playerCircle.getX(), playerCircle.getY(), 1);
         viewport = new ViewportHandler(camera);
+        foodSpawner = new FoodSpawner(enemyCircles, viewport);
+        initEnemyCircles(10);
 
         lastUpdateTime = System.currentTimeMillis();
 
@@ -36,7 +37,10 @@ public class WorldPanel extends JPanel {
             while (true) {
                 long startTime = System.currentTimeMillis();
 
+                foodSpawner.update();
                 updateCirclePosition();
+                updateGameLogic();
+                updateCameraZoom();
                 repaint();
 
                 long elapsedTime = System.currentTimeMillis() - startTime;
@@ -72,10 +76,18 @@ public class WorldPanel extends JPanel {
     }
 
     private void initEnemyCircles(int count) {
-        Random rand = new Random();
         for (int i = 0; i < count; i++) {
-            enemyCircles.add(new Circle(rand.nextInt(200) - 100, rand.nextInt(200) - 100, Globals.START_WEIGHT_FOOD, Color.MAGENTA, true));
+            foodSpawner.spawnNew(enemyCircles, viewport.worldX(0), viewport.worldY(0), viewport.worldX(Globals.WINDOW_WIDTH), viewport.worldY(Globals.WINDOW_HEIGHT));
         }
+    }
+
+    private void updatePlayerCircleDirection(int mouseX, int mouseY) {
+        double angle = Math.atan2(mouseY - Globals.WINDOW_HEIGHT / 2, mouseX - Globals.WINDOW_WIDTH / 2);
+        playerCircle.setDirection(angle);
+    }
+
+    private void updateCameraZoom() {
+        camera.setZoom(1 - Math.min(playerCircle.getSize() / 200.0, 0.2));
     }
 
     private void updateCirclePosition() {
@@ -95,9 +107,19 @@ public class WorldPanel extends JPanel {
         lastUpdateTime = currentTime;
     }
 
-    private void updatePlayerCircleDirection(int mouseX, int mouseY) {
-        double angle = Math.atan2(mouseY - Globals.WINDOW_HEIGHT / 2, mouseX - Globals.WINDOW_WIDTH / 2);
-        playerCircle.setDirection(angle);
+    private void updateGameLogic() {
+
+        for (int i = 0; i < enemyCircles.size(); i++) {
+            Circle circle = enemyCircles.get(i);
+            if (!playerCircle.isCollidingWith(circle)) continue;
+
+            if (playerCircle.getWeight() > circle.getWeight())
+            {
+                playerCircle.setWeight(playerCircle.getWeight() + circle.getWeight());
+                enemyCircles.remove(i);
+                break;
+            }
+        }
     }
 
     private void drawBackground(Graphics2D g2d) {

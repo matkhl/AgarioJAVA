@@ -58,7 +58,11 @@ public class Circle {
             this.y = y;
         }
 
-        public void setWeight(double weight) {
+        public void setWeight(int weight) {
             this.weight = weight;
+        }
+
+        public boolean isCollidingWith(Circle circle) {
+            return Math.sqrt(Math.pow(circle.x - this.x, 2) + Math.pow(circle.y - this.y, 2)) < this.getSize();
         }
     }

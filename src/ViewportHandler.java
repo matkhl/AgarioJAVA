@@ -17,4 +17,12 @@ public class ViewportHandler {
     public int screenRange(double worldRange) {
         return (int) (worldRange * camera.getZoom());
     }
+
+    public double worldX(int screenX) {
+        return (screenX - Globals.WINDOW_WIDTH / 2) / camera.getZoom() + camera.getX();
+    }
+
+    public double worldY(int screenY) {
+        return (screenY - Globals.WINDOW_HEIGHT / 2) / camera.getZoom() + camera.getY();
+    }
 }
