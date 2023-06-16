@@ -26,7 +26,7 @@ public class Circle {
         }
 
         public double getSpeed() {
-            return 200 - 100 / weight;
+            return Globals.BASE_SPEED_CIRCLE - (int) ((Globals.BASE_SPEED_CIRCLE / 2) / weight * 0.001);
         }
 
         public double getDirection() {

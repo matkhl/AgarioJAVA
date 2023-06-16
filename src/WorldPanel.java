@@ -102,19 +102,25 @@ public class WorldPanel extends JPanel {
 
     private void drawBackground(Graphics2D g2d) {
         g2d.setColor(new Color(200, 200, 200));
-        for (int x = -Globals.GRID_SIZE; x < getWidth() + Globals.GRID_SIZE; x += Globals.GRID_SIZE) {
-            for (int y = -Globals.GRID_SIZE; y < getHeight() + Globals.GRID_SIZE; y += Globals.GRID_SIZE) {
-                int gridX = x - (int) (camera.getX() % Globals.GRID_SIZE);
-                int gridY = y - (int) (camera.getY() % Globals.GRID_SIZE);
-                g2d.drawRect(gridX, gridY, Globals.GRID_SIZE, Globals.GRID_SIZE);
+        int gridSizeScreen = viewport.screenRange(Globals.GRID_SIZE);
+        for (int x = -gridSizeScreen; x < Globals.WINDOW_WIDTH + gridSizeScreen; x += gridSizeScreen) {
+            for (int y = -gridSizeScreen; y < Globals.WINDOW_HEIGHT + gridSizeScreen; y += gridSizeScreen) {
+                int gridX = x - (int) (viewport.screenRange(camera.getX()) % gridSizeScreen);
+                int gridY = y - (int) (viewport.screenRange(camera.getY()) % gridSizeScreen);
+                g2d.drawRect(gridX, gridY, gridSizeScreen, gridSizeScreen);
             }
         }
     }
 
     private void drawCircle(Graphics2D g2d, Circle circle) {
         int circleScreenSize = viewport.screenRange(circle.getSize());
-        int circleScreenX = viewport.screenX(circle.getX() - circleScreenSize);
-        int circleScreenY = viewport.screenY(circle.getY() - circleScreenSize);
+        int circleScreenX = viewport.screenX(circle.getX()) - circleScreenSize;
+        int circleScreenY = viewport.screenY(circle.getY()) - circleScreenSize;
+        int borderWidth = (int) (circleScreenSize / 10.0) + viewport.screenRange(5);
+
+        g2d.setColor(new Color((int) (circle.getColor().getRed() / 1.5), (int) (circle.getColor().getGreen() / 1.5), (int) (circle.getColor().getBlue() / 1.5)));
+        g2d.fillOval(circleScreenX - borderWidth, circleScreenY - borderWidth, circleScreenSize * 2 + borderWidth * 2, circleScreenSize * 2 + borderWidth * 2);
+
         g2d.setColor(circle.getColor());
         g2d.fillOval(circleScreenX, circleScreenY, circleScreenSize * 2, circleScreenSize * 2);
     }

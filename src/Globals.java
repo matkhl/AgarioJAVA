@@ -7,4 +7,5 @@ public class Globals {
 
     public static final int START_WEIGHT_CIRCLE = 1000;
     public static final int START_WEIGHT_FOOD = 400;
+    public static final int BASE_SPEED_CIRCLE = 300;
 }
