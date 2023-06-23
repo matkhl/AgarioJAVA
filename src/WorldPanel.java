@@ -10,7 +10,8 @@ public class WorldPanel extends JPanel {
 
     private Circle playerCircle;
     private ArrayList<Circle> enemyCircles = new ArrayList<Circle>();
-    private FoodSpawner foodSpawner;
+    private EnemySpawner enemySpawner;
+    private EnemyLogic enemyLogic;
     private Camera camera;
     private long lastUpdateTime;
     private ViewportHandler viewport;
@@ -28,7 +29,9 @@ public class WorldPanel extends JPanel {
         playerCircle = new Circle(0, 0, Globals.START_WEIGHT_CIRCLE, Color.CYAN, false);
         camera = new Camera(playerCircle.getX(), playerCircle.getY(), 1);
         viewport = new ViewportHandler(camera);
-        foodSpawner = new FoodSpawner(enemyCircles, viewport);
+        enemySpawner = new EnemySpawner(viewport, enemyCircles, playerCircle);
+        enemyLogic = new EnemyLogic(enemyCircles, playerCircle);
+        
         initEnemyCircles(10);
 
         lastUpdateTime = System.currentTimeMillis();
@@ -37,7 +40,9 @@ public class WorldPanel extends JPanel {
             while (true) {
                 long startTime = System.currentTimeMillis();
 
-                foodSpawner.update();
+                enemySpawner.updateFood();
+                enemySpawner.updateEnemies();
+                enemyLogic.update();
                 updateCirclePosition();
                 updateGameLogic();
                 updateCameraZoom();
@@ -77,7 +82,7 @@ public class WorldPanel extends JPanel {
 
     private void initEnemyCircles(int count) {
         for (int i = 0; i < count; i++) {
-            foodSpawner.spawnNew(enemyCircles, viewport.worldX(0), viewport.worldY(0), viewport.worldX(Globals.WINDOW_WIDTH), viewport.worldY(Globals.WINDOW_HEIGHT));
+            enemySpawner.spawnFood(enemyCircles, viewport.worldX(0), viewport.worldY(0), viewport.worldX(Globals.WINDOW_WIDTH), viewport.worldY(Globals.WINDOW_HEIGHT));
         }
     }
 
@@ -113,9 +118,9 @@ public class WorldPanel extends JPanel {
             Circle circle = enemyCircles.get(i);
             if (!playerCircle.isCollidingWith(circle)) continue;
 
-            if (playerCircle.getWeight() > circle.getWeight())
+            if (playerCircle.getWeight() > circle.getWeight() + (circle.getWeight() * Globals.CIRCLE_CONSUMPTION_TOLERANCE))
             {
-                playerCircle.setWeight(playerCircle.getWeight() + circle.getWeight());
+                playerCircle.setWeight(playerCircle.getWeight() + (int)(circle.getWeight() / 2.0));
                 enemyCircles.remove(i);
                 break;
             }

@@ -7,6 +7,9 @@ public class Circle {
         private int weight;
         private Color color;
         private boolean food;
+        
+        private double targetX;
+        private double targetY;
 
         public Circle(double x, double y, int weight, Color color, boolean food) {
             this.x = x;
@@ -15,6 +18,8 @@ public class Circle {
             this.weight = weight;
             this.color = color;
             this.food = food;
+            this.targetX = 0.1;
+            this.targetY = 0.1;
         }
 
         public double getX() {
