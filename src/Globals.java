@@ -1,3 +1,5 @@
+import java.awt.Color;
+
 public class Globals {
     public static final int WINDOW_WIDTH = 1200;
     public static final int WINDOW_HEIGHT = 800;
@@ -9,7 +11,8 @@ public class Globals {
     public static final int START_WEIGHT_FOOD = 400;
     public static final int BASE_SPEED_CIRCLE = 300;
     public static final double CIRCLE_CONSUMPTION_TOLERANCE = 0.1;
-    
+    public static Color playerColor = Color.CYAN;
+
     public static final int FOOD_SPAWN_DELAY = 1000;
     public static final int ENEMY_SPAWN_DELAY = 3000;
 }

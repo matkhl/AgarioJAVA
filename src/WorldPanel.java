@@ -25,8 +25,9 @@ public class WorldPanel extends JPanel {
                 updatePlayerCircleDirection(e.getX(), e.getY());
             }
         });
+        
 
-        playerCircle = new Circle(0, 0, Globals.START_WEIGHT_CIRCLE, Color.CYAN, false);
+        playerCircle = new Circle(0, 0, Globals.START_WEIGHT_CIRCLE, Globals.playerColor, false);
         camera = new Camera(playerCircle.getX(), playerCircle.getY(), 1);
         viewport = new ViewportHandler(camera);
         enemySpawner = new EnemySpawner(viewport, enemyCircles, playerCircle);
@@ -37,6 +38,9 @@ public class WorldPanel extends JPanel {
         lastUpdateTime = System.currentTimeMillis();
 
         Thread gameLoop = new Thread(() -> {
+        
+            
+            
             while (true) {
                 long startTime = System.currentTimeMillis();
 
@@ -58,9 +62,12 @@ public class WorldPanel extends JPanel {
                         e.printStackTrace();
                     }
                 }
+                
             }
         });
+        
         gameLoop.start();
+        
     }
 
     @Override
