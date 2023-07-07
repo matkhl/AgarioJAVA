@@ -47,7 +47,8 @@ public class WorldPanel extends JPanel {
                 enemySpawner.updateFood();
                 enemySpawner.updateEnemies();
                 enemyLogic.update();
-                updateCirclePosition();
+                updateCircleDirections();
+                updateCirclePositions();
                 updateGameLogic();
                 updateCameraZoom();
                 repaint();
@@ -89,47 +90,71 @@ public class WorldPanel extends JPanel {
 
     private void initEnemyCircles(int count) {
         for (int i = 0; i < count; i++) {
-            enemySpawner.spawnFood(enemyCircles, viewport.worldX(0), viewport.worldY(0), viewport.worldX(Globals.WINDOW_WIDTH), viewport.worldY(Globals.WINDOW_HEIGHT));
+            enemySpawner.spawnFood(viewport.worldX(0), viewport.worldY(0), viewport.worldX(Globals.WINDOW_WIDTH), viewport.worldY(Globals.WINDOW_HEIGHT));
         }
     }
 
     private void updatePlayerCircleDirection(int mouseX, int mouseY) {
-        double angle = Math.atan2(mouseY - Globals.WINDOW_HEIGHT / 2, mouseX - Globals.WINDOW_WIDTH / 2);
-        playerCircle.setDirection(angle);
+        playerCircle.setDirection(Math.atan2(mouseY - Globals.WINDOW_HEIGHT / 2, mouseX - Globals.WINDOW_WIDTH / 2));
+    }
+
+    private void updateCircleDirections() {
+        for (Circle circle : enemyCircles) {
+            if (circle.isFood()) continue;
+            double dx = circle.getTargetX() - circle.getX();
+            double dy = circle.getTargetY() - circle.getY();
+            circle.setDirection(Math.atan2(dy, dx));
+        }
     }
 
     private void updateCameraZoom() {
         camera.setZoom(1 - Math.min(playerCircle.getSize() / 200.0, 0.2));
     }
 
-    private void updateCirclePosition() {
+    private void updateCirclePositions() {
         long currentTime = System.currentTimeMillis();
         double elapsedTimeInSeconds = (currentTime - lastUpdateTime) / 1000.0;
 
-        double distance = playerCircle.getSpeed() * elapsedTimeInSeconds;
-
-        double dx = distance * Math.cos(playerCircle.getDirection());
-        double dy = distance * Math.sin(playerCircle.getDirection());
-
-        double newX = playerCircle.getX() + dx;
-        double newY = playerCircle.getY() + dy;
-        playerCircle.setPosition(newX, newY);
+        for (Circle circle : enemyCircles) {
+            if (circle.isFood()) continue;
+            updateCirclePosition(circle, elapsedTimeInSeconds);
+        }
+        updateCirclePosition(playerCircle, elapsedTimeInSeconds);
         camera.setPosition(playerCircle.getX(), playerCircle.getY());
 
         lastUpdateTime = currentTime;
     }
 
+    public void updateCirclePosition(Circle circle, double elapsedTimeInSeconds) {
+        double distance = circle.getSpeed() * elapsedTimeInSeconds;
+
+        double dx = distance * Math.cos(circle.getDirection());
+        double dy = distance * Math.sin(circle.getDirection());
+
+        double newX = circle.getX() + dx;
+        double newY = circle.getY() + dy;
+        circle.setPosition(newX, newY);
+    }
+
     private void updateGameLogic() {
+        ArrayList<Circle> allCircles = new ArrayList<Circle>(enemyCircles);
+        allCircles.add(playerCircle);
 
-        for (int i = 0; i < enemyCircles.size(); i++) {
-            Circle circle = enemyCircles.get(i);
-            if (!playerCircle.isCollidingWith(circle)) continue;
+        for (Circle circle : allCircles) {
+            if (circle.isFood()) continue;
+            for (Circle enemyCircle : allCircles) {
+                if (!circle.isCollidingWith(enemyCircle)) continue;
 
-            if (playerCircle.getWeight() > circle.getWeight() + (circle.getWeight() * Globals.CIRCLE_CONSUMPTION_TOLERANCE))
-            {
-                playerCircle.setWeight(playerCircle.getWeight() + (int)(circle.getWeight() / 2.0));
-                enemyCircles.remove(i);
-                break;
+                if (circle.canEat(enemyCircle))
+                {
+                    circle.setWeight(circle.getWeight() + (int)(enemyCircle.getWeight() / 2.0));
+                    if (enemyCircle == playerCircle) {
+                        // player died
+                    } else {
+                        enemyCircles.remove(enemyCircle);
+                    }
+                    break;
+                }
             }
         }
     }

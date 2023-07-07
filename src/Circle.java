@@ -54,6 +54,14 @@ public class Circle {
             return food;
         }
 
+        public double getTargetX() {
+            return targetX;
+        }
+
+        public double getTargetY() {
+            return targetY;
+        }
+
         public void setDirection(double direction) {
             this.direction = direction;
         }
@@ -67,7 +75,20 @@ public class Circle {
             this.weight = weight;
         }
 
+        public void setTargetPosition(double targetX, double targetY) {
+            this.targetX = targetX;
+            this.targetY = targetY;
+        }
+
         public boolean isCollidingWith(Circle circle) {
-            return Math.sqrt(Math.pow(circle.x - this.x, 2) + Math.pow(circle.y - this.y, 2)) < this.getSize();
+            return this.getDistanceTo(circle) < this.getSize();
+        }
+
+        public boolean canEat(Circle circle) {
+            return circle.isFood() || this.getWeight() > circle.getWeight() + (circle.getWeight() * Globals.CIRCLE_CONSUMPTION_TOLERANCE);
+        }
+
+        public double getDistanceTo(Circle circle) {
+            return Math.sqrt(Math.pow(circle.x - this.x, 2) + Math.pow(circle.y - this.y, 2));
         }
     }

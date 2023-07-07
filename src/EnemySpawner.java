@@ -23,12 +23,26 @@ public class EnemySpawner {
         long currentTime = System.currentTimeMillis();
         if (currentTime < lastFoodSpawnTime + Globals.FOOD_SPAWN_DELAY) return;
 
-        spawnFood(circles, viewport.worldX(0), viewport.worldY(0), viewport.worldX(Globals.WINDOW_WIDTH), viewport.worldY(Globals.WINDOW_HEIGHT));
+        spawnFood(viewport.worldX(0), viewport.worldY(0), viewport.worldX(Globals.WINDOW_WIDTH), viewport.worldY(Globals.WINDOW_HEIGHT));
         lastFoodSpawnTime = currentTime;
     }
 
     public void updateEnemies() {
         long currentTime = System.currentTimeMillis();
+
+        //Remove enemies that are out of bounds
+        double screenHeightWorld = viewport.worldRange(Globals.WINDOW_HEIGHT);
+        for (Circle circle : circles) {
+            if (circle.getX() < viewport.worldX(0) - screenHeightWorld * 0.5 ||
+                circle.getX() > viewport.worldX(Globals.WINDOW_WIDTH) + screenHeightWorld * 0.5 ||
+                circle.getY() < viewport.worldY(0) - screenHeightWorld * 0.5 ||
+                circle.getY() > viewport.worldY(Globals.WINDOW_HEIGHT) + screenHeightWorld * 0.5) {
+                    removeEnemy(circle);
+                    break;
+                }
+        }
+
+        //Spawn enemies
         if (currentTime < lastEnemySpawnTime + Globals.ENEMY_SPAWN_DELAY) return;
         
         //    ##############
@@ -39,8 +53,6 @@ public class EnemySpawner {
         int borderId = rand.nextInt(4);
 
         double fromX, fromY, toX, toY;
-
-        double screenHeightWorld = viewport.worldRange(Globals.WINDOW_HEIGHT);
         switch (borderId) {
             case 0:
                 fromX = viewport.worldX(0) - screenHeightWorld * 0.5;
@@ -68,17 +80,17 @@ public class EnemySpawner {
                 break;
         }
 
-        spawnEnemy(circles, fromX, fromY, toX, toY);
+        spawnEnemy(fromX, fromY, toX, toY);
         lastEnemySpawnTime = currentTime;
     }
 
-    public void spawnFood(ArrayList<Circle> circles, double fromX, double fromY, double toX, double toY) {
+    public void spawnFood(double fromX, double fromY, double toX, double toY) {
         int rangeX = (int) Math.round(toX - fromX);
         int rangeY = (int) Math.round(toY - fromY);
         circles.add(new Circle(fromX + rand.nextInt(rangeX), fromY + rand.nextInt(rangeY), Globals.START_WEIGHT_FOOD, Color.MAGENTA, true));
     }
 
-    public void spawnEnemy(ArrayList<Circle> circles, double fromX, double fromY, double toX, double toY) {
+    public void spawnEnemy(double fromX, double fromY, double toX, double toY) {
         int rangeX = (int) Math.round(toX - fromX);
         int rangeY = (int) Math.round(toY - fromY);
         int weightMin = (int) (playerCircle.getWeight() - playerCircle.getWeight() * 0.5);
@@ -90,5 +102,9 @@ public class EnemySpawner {
         final float luminance = 0.9f;
         final Color color = Color.getHSBColor(hue, saturation, luminance);
         circles.add(new Circle(fromX + rand.nextInt(rangeX), fromY + rand.nextInt(rangeY), weightMin + rand.nextInt(rangeWeight), color, false));
+    }
+
+    public void removeEnemy(Circle circle) {
+        circles.remove(circle);
     }
 }
