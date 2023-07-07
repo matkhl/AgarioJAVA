@@ -84,6 +84,11 @@ public class EnemySpawner {
         int weightMin = (int) (playerCircle.getWeight() - playerCircle.getWeight() * 0.5);
         int weightMax = (int) (playerCircle.getWeight() + playerCircle.getWeight() * 0.5);
         int rangeWeight = weightMax - weightMin;
-        circles.add(new Circle(fromX + rand.nextInt(rangeX), fromY + rand.nextInt(rangeY), weightMin + rand.nextInt(rangeWeight), Color.GREEN, false));
+        final float hue = rand.nextFloat();
+        // Saturation between 0.1 and 0.3
+        final float saturation = (rand.nextInt(2000) + 1000) / 10000f;
+        final float luminance = 0.9f;
+        final Color color = Color.getHSBColor(hue, saturation, luminance);
+        circles.add(new Circle(fromX + rand.nextInt(rangeX), fromY + rand.nextInt(rangeY), weightMin + rand.nextInt(rangeWeight), color, false));
     }
 }
