@@ -9,13 +9,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.SwingConstants;
 
 public class Startpanel extends JPanel{
     private JButton startbutton = new JButton();
     private JButton colorbutton = new JButton();
     private JButton exitbutton = new JButton();
-    private JLabel scoreText = new JLabel();
-    private JLabel highScoreText = new JLabel();
+    private JLabel scoreText = new JLabel("", SwingConstants.CENTER);
+    private JLabel highScoreText = new JLabel("", SwingConstants.CENTER);
     private Dimension buttondDimension = new Dimension(Globals.WINDOW_WIDTH / 2, 100);
     private boolean gamestart = false;
 
@@ -26,14 +27,12 @@ public class Startpanel extends JPanel{
 
         scoreText.setFont(new Font(TOOL_TIP_TEXT_KEY, 0, 30));
         scoreText.setText("Last score: " + String.valueOf(score));
-        scoreText.setAlignmentX(CENTER_ALIGNMENT);
         JScrollPane scoreScrollPane = new JScrollPane(scoreText);
         scoreScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         add(scoreScrollPane);
 
         highScoreText.setFont(new Font(TOOL_TIP_TEXT_KEY, 0, 30));
         highScoreText.setText("Highscore: " + String.valueOf(highScore));
-        highScoreText.setAlignmentX(CENTER_ALIGNMENT);
         JScrollPane highScoreScrollPane = new JScrollPane(highScoreText);
         highScoreScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         add(highScoreScrollPane);
