@@ -15,6 +15,7 @@ public class WorldPanel extends JPanel {
     private Camera camera;
     private long lastUpdateTime;
     private ViewportHandler viewport;
+    private boolean gameRunning = true;
 
     public WorldPanel() {
         setPreferredSize(new Dimension(Globals.WINDOW_WIDTH, Globals.WINDOW_HEIGHT)); 
@@ -26,7 +27,6 @@ public class WorldPanel extends JPanel {
             }
         });
         
-
         playerCircle = new Circle(0, 0, Globals.START_WEIGHT_CIRCLE, Globals.playerColor, false);
         camera = new Camera(playerCircle.getX(), playerCircle.getY(), 1);
         viewport = new ViewportHandler(camera);
@@ -38,8 +38,6 @@ public class WorldPanel extends JPanel {
         lastUpdateTime = System.currentTimeMillis();
 
         Thread gameLoop = new Thread(() -> {
-        
-            
             
             while (true) {
                 long startTime = System.currentTimeMillis();
@@ -52,6 +50,8 @@ public class WorldPanel extends JPanel {
                 updateGameLogic();
                 updateCameraZoom();
                 repaint();
+                
+                if (!gameRunning) break;
 
                 long elapsedTime = System.currentTimeMillis() - startTime;
 
@@ -63,12 +63,10 @@ public class WorldPanel extends JPanel {
                         e.printStackTrace();
                     }
                 }
-                
             }
         });
         
         gameLoop.start();
-        
     }
 
     @Override
@@ -78,6 +76,7 @@ public class WorldPanel extends JPanel {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         drawBackground(g2d);
+        drawScore(g2d);
 
         ArrayList<Circle> sortedCircles = new ArrayList<Circle>(enemyCircles);
         sortedCircles.add(playerCircle);
@@ -149,7 +148,7 @@ public class WorldPanel extends JPanel {
                 {
                     circle.setWeight(circle.getWeight() + (int)(enemyCircle.getWeight() / 2.0));
                     if (enemyCircle == playerCircle) {
-                        // player died
+                        gameRunning = false;
                     } else {
                         enemyCircles.remove(enemyCircle);
                     }
@@ -171,6 +170,12 @@ public class WorldPanel extends JPanel {
         }
     }
 
+    private void drawScore(Graphics2D g2d) {
+        g2d.setColor(new Color(0, 0, 0));
+        g2d.setFont(new Font(TOOL_TIP_TEXT_KEY, 0, 30));
+        g2d.drawString("Score: " + String.valueOf(playerCircle.getWeight() / 100), 20, 40);
+    }
+
     private void drawCircle(Graphics2D g2d, Circle circle) {
         int circleScreenSize = viewport.screenRange(circle.getSize());
         int circleScreenX = viewport.screenX(circle.getX()) - circleScreenSize;
@@ -182,5 +187,13 @@ public class WorldPanel extends JPanel {
 
         g2d.setColor(circle.getColor());
         g2d.fillOval(circleScreenX, circleScreenY, circleScreenSize * 2, circleScreenSize * 2);
+    }
+
+    public boolean isGameRunning() {
+        return gameRunning;
+    }
+
+    public int getScore() {
+        return playerCircle.getWeight() / 100;
     }
 }

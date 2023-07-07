@@ -1,30 +1,46 @@
-import java.awt.Dimension;
 import javax.swing.JFrame;
 
 public class GuiHandler {
+
+    private int score = 0;
+    private int highScore = 0;
+
     public GuiHandler() {
-        JFrame startMenu = new JFrame("Agar.io Java");
-        startMenu.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Startpanel panel = new Startpanel();
-        panel.setPreferredSize(new Dimension(Globals.WINDOW_WIDTH, Globals.WINDOW_HEIGHT));
-        startMenu.add(panel);
-        startMenu.pack();
-        startMenu.setLocationRelativeTo(null);
-        startMenu.setVisible(true);
-        while(true){
-            Thread.onSpinWait();
-            if(panel.getGamestart()==true){
-                break;
-            }
-        
-        }
         JFrame frame = new JFrame("Agar.io Java");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(new WorldPanel());
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        startMenu.setVisible(false);
-        frame.setVisible(true);
-        
+
+        while (true) {
+            Startpanel panel = new Startpanel(score, highScore);
+            frame.add(panel);
+            frame.pack();
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+
+            while(true) {
+                Thread.onSpinWait();
+                if(panel.getGamestart()) {
+                    break;
+                }
+            }
+
+            frame.remove(panel);
+            
+            WorldPanel world = new WorldPanel();
+            frame.add(world);
+            frame.remove(panel);
+            frame.pack();
+
+            while(true) {
+                Thread.onSpinWait();
+                if(!world.isGameRunning()) {
+                    score = world.getScore();
+                    if (score > highScore)
+                        highScore = score;
+                    break;
+                }
+            }
+
+            frame.remove(world);
+        }
     }
 }
