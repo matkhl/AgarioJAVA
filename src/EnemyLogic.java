@@ -10,6 +10,21 @@ public class EnemyLogic {
     }
 
     public void update() {
-        
+        ArrayList<Circle> allCircles = new ArrayList<Circle>(circles);
+        allCircles.add(playerCircle);
+        for (Circle circle : allCircles) {
+            if (circle == playerCircle) continue;
+            if (circle.isFood()) continue;
+            Circle closestEatable = null;
+            double closestEatableDistance = 0;
+            for (Circle enemyCircle : allCircles) {
+                if ((enemyCircle.isFood() || circle.canEat(enemyCircle)) && (closestEatableDistance == 0 || circle.getDistanceTo(enemyCircle) < closestEatableDistance)) {
+                    closestEatable = enemyCircle;
+                    closestEatableDistance = circle.getDistanceTo(enemyCircle);
+                }
+            }
+            if (closestEatable != null)
+                circle.setTargetPosition(closestEatable.getX(), closestEatable.getY());
+        }
     }
 }
