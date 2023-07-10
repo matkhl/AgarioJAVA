@@ -76,7 +76,6 @@ public class WorldPanel extends JPanel {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         drawBackground(g2d);
-        drawScore(g2d);
 
         ArrayList<Circle> sortedCircles = new ArrayList<Circle>(enemyCircles);
         sortedCircles.add(playerCircle);
@@ -85,6 +84,8 @@ public class WorldPanel extends JPanel {
         for (Circle circle : sortedCircles) {
             drawCircle(g2d, circle);
         }
+
+        drawScore(g2d);
     }
 
     private void initEnemyCircles(int count) {
